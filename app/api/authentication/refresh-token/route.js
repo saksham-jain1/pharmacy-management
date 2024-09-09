@@ -2,9 +2,9 @@ import { jwtVerify } from "jose";
 import {
   generateAccessToken,
   generateAndStoreRefreshToken,
-} from "@/config/generateToken";
-import RefreshToken from "@/models/RefreshTokenModel";
-import connectDB from "@/config/db";
+} from "@/app/config/generateToken";
+import RefreshToken from "@/app/models/RefreshTokenModel";
+import connectDB from "@/app/config/db";
 import { unauthorizedResponse, successResponse } from "@/app/api/apiResponse";
 
 export async function GET(req) {

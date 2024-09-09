@@ -1,4 +1,4 @@
-import { generateCsrfToken } from "@/config/generateToken";
+import { generateCsrfToken } from "@/app/config/generateToken";
 import { successResponse } from "./apiResponse";
 
 export async function GET(req) {

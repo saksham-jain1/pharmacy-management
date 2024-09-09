@@ -1,4 +1,4 @@
-import { EmailTemplate } from "@/email-templates/verificationMail";
+import { EmailTemplate } from "@/app/email-templates/verificationMail";
 import { Resend } from "resend";
 
 const logger = require("@/app/logger");
@@ -6,8 +6,8 @@ const {
   generateAccessToken,
   generateAndStoreRefreshToken,
   generateCsrfToken,
-} = require("@/config/generateToken");
-const User = require("@/models/UserModel");
+} = require("@/app/config/generateToken");
+const User = require("@/app/models/UserModel");
 const {
   successResponse,
   conflictResponse,
@@ -15,8 +15,8 @@ const {
   internalServerErrorResponse,
   errorResponse,
 } = require("@/app/api/apiResponse");
-const { registrationSchema } = require("@/validations/userValidation"); // Adjust the path as necessary
-require("@/config/db")();
+const { registrationSchema } = require("@/app/validations/userValidation"); // Adjust the path as necessary
+require("@/app/config/db")();
 
 export async function POST(req) {
   try {

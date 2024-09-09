@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { verifyCsrfToken } from "@/config/generateToken";
 import { unauthorizedResponse } from "./app/api/apiResponse";
 
 const rateLimitMap = new Map();
@@ -103,7 +102,9 @@ export async function middleware(req) {
     if (["POST", "PUT", "DELETE"].includes(req.method)) {
       const csrfToken = req.headers.get("x-csrf-token");
       const sessionToken = req.cookies.get("csrfToken");
-      verifyCsrfToken(csrfToken, sessionToken);
+      if (csrfToken !== sessionToken) {
+        throw new Error("CSRF token mismatch");
+      }
     }
     return NextResponse.next();
   } catch (err) {

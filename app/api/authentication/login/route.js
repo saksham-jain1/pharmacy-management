@@ -1,5 +1,6 @@
 import logger from "@/app/logger";
-const User = require("@/models/UserModel");
+import { loginSchema } from "@/app/validations/userValidation";
+const User = require("@/app/models/UserModel");
 const {
   successResponse,
   unauthorizedResponse,
@@ -11,10 +12,9 @@ const {
   generateAccessToken,
   generateAndStoreRefreshToken,
   generateCsrfToken
-} = require("@/config/generateToken");
-const { loginSchema } = require("@/validations/userValidation");
+} = require("@/app/config/generateToken");
 
-await require("@/config/db")();
+await require("@/app/config/db")();
 
 export async function POST(req) {
   try {

@@ -1,6 +1,6 @@
-import { SignJWT, jwtVerify } from "jose"; // Use import if ES modules or require for commonJS
-const RefreshToken = require("@/models/RefreshTokenModel");
-const VerificationToken = require("@/models/VerificationTokenModel");
+import { SignJWT} from "jose";
+const RefreshToken = require("@/app/models/RefreshTokenModel");
+const VerificationToken = require("@/app/models/VerificationTokenModel");
 const { v4 } = require("uuid");
 
 const generateAccessToken = async (userId) => {
@@ -14,12 +14,6 @@ const generateAccessToken = async (userId) => {
 
 const generateCsrfToken = () => {
   return v4(); // Generates a random UUID that can be used as a CSRF token
-};
-
-const verifyCsrfToken = (receivedToken, storedToken) => {
-  if (receivedToken !== storedToken) {
-    throw new Error("CSRF token mismatch");
-  }
 };
 
 const generateAndStoreRefreshToken = async (userId) => {
@@ -58,7 +52,6 @@ const generateAndStoreVerificationToken = async (userId) => {
 module.exports = {
   generateAccessToken,
   generateAndStoreRefreshToken,
-  verifyCsrfToken,
   generateCsrfToken,
   generateAndStoreVerificationToken,
 };
