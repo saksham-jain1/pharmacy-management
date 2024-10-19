@@ -3,9 +3,11 @@ import { NextResponse } from "next/server";
 export const successResponse = (
   message = "Operation completed successfully.",
   data = null,
+  csrfToken,
+  refreshToken,
   meta = {}
 ) => {
-  return NextResponse.json(
+  const response = NextResponse.json(
     {
       status: "success",
       code: 200,
@@ -15,6 +17,19 @@ export const successResponse = (
     },
     { status: 200 }
   );
+  if (csrfToken)
+    response.cookies.set("csrf-token", csrfToken, {
+      httpOnly: true,
+      secure: process.env.ENV === "production" || process.env.ENV === "pilot",
+      sameSite: "Strict",
+    });
+  if (refreshToken)
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.ENV === "production" || process.env.ENV === "pilot",
+      sameSite: "Strict",
+    });
+  return response;
 };
 
 export const createdResponse = (
@@ -31,6 +46,18 @@ export const createdResponse = (
       meta,
     },
     { status: 201 }
+  );
+};
+
+export const noContentResponse = (message = "No content.") => {
+  return NextResponse.json(
+    {
+      status: "success",
+      code: 204,
+      message,
+      data: null,
+    },
+    { status: 204 }
   );
 };
 
@@ -182,17 +209,5 @@ export const badRequestResponse = (
       meta,
     },
     { status: 400 }
-  );
-};
-
-export const noContentResponse = (message = "No content.") => {
-  return NextResponse.json(
-    {
-      status: "success",
-      code: 204,
-      message,
-      data: null,
-    },
-    { status: 204 }
   );
 };

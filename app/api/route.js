@@ -6,7 +6,7 @@ export async function GET(req) {
   const response = successResponse("!!!Welcome to this medicine api!!!");
   response.cookies.set("csrf-token", csrfToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.ENV === "production" || process.env.ENV === "pilot",
     sameSite: "Strict",
   });
 

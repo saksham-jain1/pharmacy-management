@@ -38,14 +38,8 @@ export async function GET(req) {
 
     const res = successResponse("Token refreshed successfully.", {
       newAccessToken,
-    });
+    },newRefreshToken);
     res.headers.set("Authorization", `Bearer ${newAccessToken}`);
-    res.cookies.set("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    });
-
     return res;
   } catch (error) {
     return unauthorizedResponse("Token verification failed.");

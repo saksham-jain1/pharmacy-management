@@ -8,10 +8,11 @@ const RefreshTokenSchema = new mongoose.Schema(
       index: true,
     },
     token: { type: String, required: true, index: true },
-    createdAt: { type: Date, default: Date.now, expires: "7d" },
   },
   { timestamps: true }
 );
+
+RefreshTokenSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
 
 const RefreshToken =
   mongoose?.models?.RefreshToken ||

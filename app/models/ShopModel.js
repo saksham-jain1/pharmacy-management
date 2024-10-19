@@ -41,6 +41,15 @@ const shopSchema = new mongoose.Schema(
         message: "Each note should not exceed 500 characters.",
       },
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true } // Adding timestamps for createdAt and updatedAt fields
 );
@@ -48,6 +57,11 @@ const shopSchema = new mongoose.Schema(
 // Indexes for faster queries on frequently searched fields
 shopSchema.index({ name: 1, userId: 1 });
 shopSchema.index({ address: "text" }); // Full-text search on address if needed
+
+shopSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
+);
 
 const Shop = mongoose?.models?.Shop || mongoose.model("Shop", shopSchema);
 

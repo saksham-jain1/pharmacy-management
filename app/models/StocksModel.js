@@ -60,6 +60,15 @@ const stockSchema = new mongoose.Schema(
       minlength: 3, // Ensure comment is at least 3 characters long
       maxlength: 300, // Ensure comment does not exceed 300 characters
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true } // Adding timestamps for createdAt and updatedAt fields
 );
@@ -73,6 +82,11 @@ stockSchema.pre("save", function (next) {
   }
   next();
 });
+
+stockSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
+);
 
 const Stock = mongoose?.models?.St || mongoose.model("Stock", stockSchema);
 

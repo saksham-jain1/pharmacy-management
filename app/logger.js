@@ -19,7 +19,7 @@ const logger = createLogger({
   transports: [new transports.Console()],
 });
 
-if (["pilot", "production"].includes(process.env.NODE_ENV)) {
+if (["pilot", "production"].includes(process.env.ENV)) {
   logger.add(
     new WinstonTransport({
       token: process.env.AXIOM_TOKEN,

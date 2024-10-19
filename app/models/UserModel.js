@@ -6,17 +6,17 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      minlength: 3, // Ensure name is at least 3 characters long
-      maxlength: 100, // Ensure name does not exceed 100 characters
+      minlength: 3,
+      maxlength: 100,
     },
     email: {
       type: String,
       index: true,
       required: true,
-      unique: true, // Ensure email is unique
+      unique: true,
       validate: {
         validator: function (v) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); // Simple regex for email validation
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
         },
         message: "Please enter a valid email address.",
       },
@@ -24,15 +24,15 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 8, // Ensure password is at least 8 characters long
+      minlength: 8,
     },
     aadharNo: {
       type: String,
       required: true,
-      unique: true, // Ensure Aadhar number is unique
+      unique: true,
       validate: {
         validator: function (v) {
-          return /^\d{12}$/.test(v); // Aadhar number should be exactly 12 digits
+          return /^\d{12}$/.test(v);
         },
         message: "Please enter a valid Aadhar number.",
       },
@@ -40,18 +40,18 @@ const userSchema = new mongoose.Schema(
     licenseNo: {
       type: String,
       required: true,
-      unique: true, // Ensure license number is unique
-      maxlength: 20, // Ensure license number does not exceed 20 characters
+      unique: true,
+      maxlength: 20,
     },
     gstNo: {
       type: String,
       required: true,
-      unique: true, // Ensure GST number is unique
+      unique: true,
       validate: {
         validator: function (v) {
           return /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/.test(
             v
-          ); // GSTIN format validation
+          );
         },
         message: "Please enter a valid GST number.",
       },
@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function (v) {
-          return /^\+?\d{1,4}[-.\s]?\d{10}$/.test(v); // Mobile number should be exactly 10 digits
+          return /^\+?\d{1,4}[-.\s]?\d{10}$/.test(v);
         },
         message: "Please enter a valid 10-digit mobile number.",
       },
@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator: function (v) {
-          return /^https?:\/\/\S+\.\S+$/.test(v); // Simple regex to validate image URL format
+          return /^https?:\/\/\S+\.\S+$/.test(v);
         },
         message: "Invalid URL format for image.",
       },
@@ -78,21 +78,25 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["user", "admin", "manager"], // Role can only be one of these values
+      enum: ["user", "admin", "manager", "blocked"],
       default: "user",
     },
     otp: {
       type: Number,
-      min: 1000,
-      max: 9999,
+      min: 100000,
+      max: 999999,
     },
     otpAttempt: {
       type: Number,
       min: 0,
       max: 3,
-      default: 0, // Default OTP attempts to 0
+      default: 0,
     },
     otpTime: {
+      type: Date,
+      default: null,
+    },
+    otpSendTime: {
       type: Date,
       default: null,
     },
@@ -100,11 +104,21 @@ const userSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       max: 3,
-      default: 0, // Default login attempts to 0
+      default: 0,
     },
     loginTime: {
       type: Date,
       default: null,
+    },
+    verificationTime: {
+      type: Date,
+      default: null,
+    },
+    verificationAttempt: {
+      type: Number,
+      min: 0,
+      max: 3,
+      default: 0,
     },
     activePlan: {
       type: mongoose.Schema.Types.ObjectId,
@@ -114,19 +128,31 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true } // Adding timestamps for createdAt and updatedAt fields
+  { timestamps: true }
 );
 
-// Pre-save hook to enforce password hashing or other operations before saving
+userSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
+);
+
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10); // Hash the password before saving
+    this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
 
-// Method to compare passwords for authentication
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };

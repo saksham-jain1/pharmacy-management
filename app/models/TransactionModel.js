@@ -50,8 +50,22 @@ const transactionSchema = new mongoose.Schema(
         },
       },
     ],
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true } // Adding timestamps for createdAt and updatedAt fields
+);
+
+transactionSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
 );
 
 // Pre-save hook to enforce business logic or other operations before saving

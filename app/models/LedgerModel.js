@@ -46,8 +46,22 @@ const ledgerSchema = new mongoose.Schema(
       default: 0,
       min: [0, "Credit balance cannot be negative"], // Minimum value for CreditBalance
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
+);
+
+ledgerSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
 );
 
 const Ledger =

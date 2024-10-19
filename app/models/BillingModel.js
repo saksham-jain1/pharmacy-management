@@ -68,8 +68,21 @@ const billingSchema = new mongoose.Schema(
         message: "Invalid URL format.",
       },
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true } // Adding timestamps for createdAt and updatedAt fields
+);
+
+billingSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
 );
 
 const Billing =

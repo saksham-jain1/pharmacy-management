@@ -5,7 +5,7 @@ import { unauthorizedResponse } from "./app/api/apiResponse";
 const rateLimitMap = new Map();
 
 const corsOptions = {
-  development: {
+  local: {
     origin: "https://your-production-domain.com",
     methods: ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"],
   },
@@ -16,8 +16,8 @@ const corsOptions = {
 };
 
 function corsMiddleware(req) {
-  const env = process.env.NODE_ENV || "development";
-  const corsConfig = corsOptions[env];
+  const env = process.env.ENV;
+  const corsConfig = corsOptions[env] || corsOptions["local"];
 
   const res = NextResponse.next();
   res.headers.set("Access-Control-Allow-Origin", corsConfig.origin);
@@ -64,6 +64,7 @@ const excludedRoutes = [
   "/api/authentication/login",
   "/api/authentication/register",
   "/api/authentication/refresh-token",
+  "/api/authentication/otp",
   "/api/",
 ];
 
@@ -97,16 +98,17 @@ export async function middleware(req) {
   }
   try {
     const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
-    await jwtVerify(token, secret);
-    req.user = decoded;
-    if (["POST", "PUT", "DELETE"].includes(req.method)) {
-      const csrfToken = req.headers.get("x-csrf-token");
-      const sessionToken = req.cookies.get("csrfToken");
-      if (csrfToken !== sessionToken) {
-        throw new Error("CSRF token mismatch");
-      }
-    }
-    return NextResponse.next();
+    const { payload } = await jwtVerify(token, secret);
+    // if (["POST", "PUT", "DELETE"].includes(req.method)) {
+    //   const csrfToken = req.headers.get("x-csrf-token");
+    //   const sessionToken = req.cookies.get("csrfToken");
+    //   if (csrfToken !== sessionToken) {
+    //     return unauthorizedResponse("CSRF token mismatch");
+    //   }
+    // }
+    const response = NextResponse.next();
+    response.headers.set("X-Custom-Data", JSON.stringify(payload));
+    return response;
   } catch (err) {
     if (err.name === "JWTExpired") {
       const refreshToken = req.cookies.get("refreshToken");
@@ -130,14 +132,14 @@ export async function middleware(req) {
           const res = NextResponse.next();
 
           const data = await response.json();
-          console.log(data);
+
           res.headers.set("Authorization", `Bearer ${data.newAccessToken}`);
           return res;
         }
         return NextResponse.redirect("/login");
       } catch (refreshErr) {
         if (refreshErr.name === "TokenExpiredError") {
-          return unauthorizedResponse();
+          return unauthorizedResponse("Token expired").redirect("/login");
         } else {
           return unauthorizedResponse();
         }

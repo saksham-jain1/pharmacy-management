@@ -58,9 +58,23 @@ const purchaseSchema = new mongoose.Schema(
       enum: ["Pending", "Completed", "Cancelled"], // Status can only be one of these values
       default: "Pending",
     },
+    deleteRequestDate: {
+      type: Date,
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 ); // Adding timestamps for createdAt and updatedAt fields
+
+purchaseSchema.index(
+  { deleteRequestDate: 1 },
+  { expireAfterSeconds: 30 * 24 * 60 * 60 }
+);
 
 const Purchase =
   mongoose?.models?.Purchase || mongoose.model("Purchase", purchaseSchema);
